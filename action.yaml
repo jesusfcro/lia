@@ -40,5 +40,5 @@ runs:
       shell: bash
       run: |
         echo "Lava status: ${{ steps.lava.outputs.status }}"
-        cat "${{ steps.lava.outputs.report }}"
-        cat "${{ steps.lava.outputs.metrics }}"
+        echo "report $(cat ${{ steps.lava.outputs.report }})"
+        echo "metrics $(cat ${{ steps.lava.outputs.metrics }})"
