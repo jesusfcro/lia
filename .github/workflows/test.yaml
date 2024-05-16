@@ -1,0 +1,38 @@
+# Copyright 2024 Adevinta
+
+name: Test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    env:
+      WANT_LAVA_STATUS: 103 # ExitCodeHigh
+    name: Test security scan and metrics upload
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run Lava Internal Action
+        id: scan
+        uses: ./
+        with:
+          lava-version: latest
+          lava-config: tests/testdata/lava.yaml
+        env:
+          TEST_AWS_ENDPOINT: http://localhost:4566
+        continue-on-error: true
+      - name: Print Lava status
+        run: 'echo "Lava status: ${{ steps.scan.outputs.lava-status }}"'
+      - name: Report unexpected Lava status
+        if: ${{ steps.scan.outputs.lava-status != env.WANT_LAVA_STATUS }}
+        run: |
+          echo "::error::unexpected status code: got: ${{ steps.scan.outputs.lava-status }}, want: ${{ env.WANT_LAVA_STATUS }}"
+          exit 1
+      - name: Report unexpected status
+        if: ${{ steps.scan.outputs.status != 0 }}
+        run: |
+          echo "::error::unexpected status code: got: ${{ steps.scan.outputs.status }}, want: 0"
+          exit 1

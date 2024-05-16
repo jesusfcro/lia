@@ -1,0 +1,44 @@
+# Copyright 2024 Adevinta
+
+name: Lava Internal action
+description: >
+  This action scans your repository for security issues and sends
+  metrics to the Security Team.
+inputs:
+  lava-config:
+    description: Path of the Lava configuration file.
+  lava-version:
+    description: Lava version.
+    default: latest
+  comment-pr:
+    description: Create a comment on pull request.
+    default: "true"
+  enable-metrics:
+    description: Enable uploading metrics.
+    default: "true"
+outputs:
+  lava-status:
+    description: Status code returned by Lava.
+    value: ${{ steps.lava.outputs.status }}
+  lava-report:
+    description: Path of the Lava report.
+    value: ${{ steps.lava.outputs.report }}
+  status:
+    description: Status of the action after uploading the metrics.
+    value: ${{ steps.upload-metrics.outputs.status }}
+runs:
+  using: composite
+  steps:
+    - name: Run Lava Action
+      id: lava
+      uses: adevinta/lava-action@summary
+      with:
+        version: ${{ inputs.lava-version }}
+        config: ${{ inputs.lava-config }}
+        comment-pr: ${{ inputs.comment-pr }}
+    - name: Show results
+      shell: bash
+      run: |
+        echo "Lava status: ${{ steps.lava.outputs.status }}"
+        cat "${{ steps.lava.outputs.report }}"
+        cat "${{ steps.lava.outputs.metrics }}"

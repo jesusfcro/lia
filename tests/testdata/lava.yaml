@@ -1,0 +1,9 @@
+lava: v0.0.0
+checktypes:
+  - tests/testdata/checktypes.json
+targets:
+  - identifier: tests/testdata/
+    type: Path
+report:
+  severity: high
+  metrics: metrics.json
