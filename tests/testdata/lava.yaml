@@ -6,4 +6,3 @@ targets:
     type: Path
 report:
   severity: high
-  metrics: metrics.json
